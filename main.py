@@ -7,14 +7,14 @@ from block import Block
 def create_bird_population(population_size):
     birds = []
     for _ in range(population_size):
-        birds.append(Bird(randint(0,250),250,0,50,50))
+        birds.append(Bird(randint(0,500),250,0,50,50))
     return birds
 
 pygame.init()
 window = pygame.display.set_mode((500,500))
 pygame.display.set_caption("Flappy Bird AI")
 
-birds = create_bird_population(10)
+birds = create_bird_population(20)
 upper_block = Block(0,0,500,50)
 lower_block = Block(0,450,500,50)
 
@@ -49,10 +49,9 @@ while run:
         bird.think(input)
         bird.fly()
         if bird.y_pos <= upper_block.y_pos + upper_block.height:
-            #run = False
-            bird.y_vel = 0
+            birds.remove(bird)
         elif bird.y_pos + bird.height >= lower_block.y_pos:
-            bird.y_vel = 0
+            birds.remove(bird)
 
         pygame.draw.rect(window,(255,0,0),(bird.x_pos,bird.y_pos,bird.width,bird.height))
 

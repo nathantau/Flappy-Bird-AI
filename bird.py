@@ -8,8 +8,8 @@ class NeuralNetwork():
         # - distance from ceiling
         # - distance from ground
         # - current y-velocity
-        self.model.add(keras.layers.Dense(128,input_dim=(3),activation='relu',kernel_initializer='random_normal'))
-        self.model.add(keras.layers.Dense(64,activation='relu',kernel_initializer='random_normal'))
+        self.model.add(keras.layers.Dense(128,input_dim=(3),activation='relu'))
+        self.model.add(keras.layers.Dense(64,activation='relu'))
         # We will have one output
         self.model.add(keras.layers.Dense(1,activation='relu'))
 
