@@ -1,4 +1,5 @@
 from tensorflow import keras
+from random import randint
 
 class NeuralNetwork():
 
@@ -15,16 +16,21 @@ class NeuralNetwork():
         self.model.add(keras.layers.Dense(64,activation='relu'))
         # We will have one output
         self.model.add(keras.layers.Dense(1,activation='relu'))
+        self.model.compile(loss='mean_squared_error',optimizer='Adam')
 
 class Bird():
-
-    def __init__(self,x_pos,y_pos,y_vel,width,height):
-        self.x_pos = x_pos
+   
+    def __init__(self,x_pos=200,y_pos=250,y_vel=0,width=10,height=10,model=None):
+        self.x_pos = randint(100,200)
         self.y_pos = y_pos
         self.y_vel = y_vel
         self.width = width
         self.height = height
+        self.score = 0
+        self.fitness = 0
         self.neural_network = NeuralNetwork()
+        if model is not None:
+            self.neural_network.model = model
 
     def think(self,input):
         # inputs is a numpy array with 3 parameters

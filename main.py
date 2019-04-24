@@ -1,21 +1,69 @@
 import pygame
 import numpy as np
-from random import randint,randrange
+from random import randint,randrange,uniform
 from bird import Bird
+from bird import NeuralNetwork
 from block import Block
 
 def create_bird_population(population_size):
     birds = []
     for _ in range(population_size):
-        birds.append(Bird(randint(0,500),250,0,10,10))
+        birds.append(Bird(randint(100,200),250,0,10,10))
+    return birds
+
+def pick_one():
+    index = 0
+    random = uniform(0,1)
+    print(f'Random: {random}')
+
+    while random > 0:
+        random = random - saved_birds[index].fitness
+        index += 1
+        print(index)
+
+    index -= 1
+    print(f'Index: {index}')
+    bird = saved_birds[index]
+    child = Bird(randint(100,200),250,0,10,10,bird.neural_network.model)
+
+    return child
+
+def calculate_fitness():
+    sum = 1
+    for bird in saved_birds:
+        sum += bird.score
+    for bird in saved_birds:
+        bird.fitness = bird.score / sum
+        bird.fitness = bird.fitness**4
+
+def mutate(model):
+    for layer in model.layers:
+        random = uniform(0,1)
+        if random > 0.75:
+            layer.setattr(activation,'tanh')
+
+def next_generation(population_size):
+
+    calculate_fitness()
+    bird = pick_one()    
+    birds = []
+
+    for _ in range(population_size):
+        target_neural_network = NeuralNetwork()
+        target_neural_network.model.set_weights(bird.neural_network.model.get_weights())
+        mutate(target_neural_network.model)
+        birds.append(Bird(x_pos=randint(10,50),model=bird.neural_network.model))
+
+    print(len(birds))
     return birds
 
 pygame.init()
 window = pygame.display.set_mode((500,500))
 pygame.display.set_caption("Flappy Bird AI")
 
-GAP = 100
-birds = create_bird_population(20)
+GAP = 200
+birds = create_bird_population(10)
+saved_birds = []
 upper_block = Block(0,0,500,50)
 lower_block = Block(0,450,500,50)
 upper_pipe = Block(475,50,25,randrange(0,400 - GAP))
@@ -29,7 +77,7 @@ while run:
         pygame.time.delay(500)
         start = True
     else:
-        pygame.time.delay(50)
+        pygame.time.delay(100)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -59,28 +107,38 @@ while run:
 
         # Collision detection
         if bird.y_pos <= upper_block.y_pos + upper_block.height:
+            saved_birds.append(bird)
             birds.remove(bird)
         elif bird.y_pos + bird.height >= lower_block.y_pos:
+            saved_birds.append(bird)
             birds.remove(bird)
         elif bird.x_pos + bird.width >= upper_pipe.x_pos and bird.x_pos <= upper_pipe.x_pos + upper_pipe.width:
             if bird.y_pos <= upper_pipe.y_pos + upper_pipe.height:
+                saved_birds.append(bird)
                 birds.remove(bird)
             elif bird.y_pos + bird.height >= lower_pipe.y_pos:
+                saved_birds.append(bird)
                 birds.remove(bird)       
+        
+        if bird is not None:
+            pygame.draw.rect(window,(255,0,0),(bird.x_pos,bird.y_pos,bird.width,bird.height))
+            # Increasing score of bird
+            bird.score += 1            
 
-        pygame.draw.rect(window,(255,0,0),(bird.x_pos,bird.y_pos,bird.width,bird.height))
-
-
+    # Drawing block objects
     pygame.draw.rect(window,(255,255,255),(upper_pipe.x_pos,upper_pipe.y_pos,upper_pipe.width,upper_pipe.height))
     pygame.draw.rect(window,(255,255,255),(lower_pipe.x_pos,lower_pipe.y_pos,lower_pipe.width,lower_pipe.height))
     pygame.draw.rect(window,(255,255,255),(upper_block.x_pos,upper_block.y_pos,upper_block.width,upper_block.height))
     pygame.draw.rect(window,(255,255,255),(lower_block.x_pos,lower_block.y_pos,lower_block.width,lower_block.height))
 
-    pygame.display.update()
+    if len(birds) <= 10:
+        pygame.display.update()
 
+    # Velocity of pipes
     upper_pipe.x_pos -= 8
     lower_pipe.x_pos -= 8
 
+    # Reloading pipes each time they are passed
     if upper_pipe.x_pos + upper_pipe.width < 0:
         upper_pipe.x_pos = 500 + 25
         lower_pipe.x_pos = 500 + 25
@@ -89,5 +147,21 @@ while run:
         lower_pipe.y_pos = upper_pipe.y_pos + upper_pipe.height + GAP
         lower_pipe.height = 400 - upper_pipe.height - GAP
 
+    if len(birds) == 0:
+        print('Next generation!')
+        # respawn birds
+        # temporary
+        saved_birds = []
+        birds = next_generation(10)
+
+        # Reset pipe positions
+        upper_pipe.x_pos = 500 + 25
+        lower_pipe.x_pos = 500 + 25        
+        upper_pipe.height = randrange(0,400 - GAP)
+        lower_pipe.y_pos = upper_pipe.y_pos + upper_pipe.height + GAP
+        lower_pipe.height = 400 - upper_pipe.height - GAP
+
+    # If the number of birds is 0, we will respawn them
+    #birds = next_generation(20)
 
 pygame.quit()
