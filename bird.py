@@ -4,11 +4,14 @@ class NeuralNetwork():
 
     def __init__(self):
         self.model = keras.models.Sequential()
-        # We will choose to have 3 features:
+        # We will choose to have 6 features:
         # - distance from ceiling
         # - distance from ground
         # - current y-velocity
-        self.model.add(keras.layers.Dense(128,input_dim=(3),activation='relu'))
+        # - x-distance from pipe
+        # - y-distance from upper pipe
+        # - y-distance from lower pipe
+        self.model.add(keras.layers.Dense(128,input_dim=(6),activation='relu'))
         self.model.add(keras.layers.Dense(64,activation='relu'))
         # We will have one output
         self.model.add(keras.layers.Dense(1,activation='relu'))
@@ -27,7 +30,6 @@ class Bird():
         # inputs is a numpy array with 3 parameters
         output = self.neural_network.model.predict(input)
         # if the output layer has a value greater than 0.5 we will flap the bird
-        print(output)
         if output[0] > 0.5:
             self.flap()
 
