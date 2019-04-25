@@ -8,61 +8,63 @@ from block import Block
 def create_bird_population(population_size):
     birds = []
     for _ in range(population_size):
-        birds.append(Bird(randint(100,200),250,0,10,10))
+        birds.append(Bird(200,250,0,10,10))
     return birds
 
 def pick_one():
     index = 0
     random = uniform(0,1)
-    print(f'Random: {random}')
+    global saved_birds
 
     while random > 0:
         random = random - saved_birds[index].fitness
         index += 1
-        print(index)
+        #print(index)
 
     index -= 1
-    print(f'Index: {index}')
     bird = saved_birds[index]
-    child = Bird(randint(100,200),250,0,10,10,bird.neural_network.model)
+    child_model = bird.neural_network.model
 
-    return child
+    return child_model
 
 def calculate_fitness():
-    sum = 1
+    global saved_birds    
+    sum = 0
     for bird in saved_birds:
         sum += bird.score
     for bird in saved_birds:
         bird.fitness = bird.score / sum
-        bird.fitness = bird.fitness**4
+       # bird.fitness = bird.fitness**4
 
 def mutate(model):
     for layer in model.layers:
         random = uniform(0,1)
         if random > 0.75:
-            layer.setattr(activation,'tanh')
+            pass
 
 def next_generation(population_size):
-
+    global saved_birds
+    global birds
     calculate_fitness()
-    bird = pick_one()    
+    new_birds = saved_birds
+
+    for new_bird in new_birds:
+        bird_model = pick_one() 
+        new_bird.neural_network.model.set_weights(bird_model.get_weights())
+        new_bird.y_pos = randint(50,450)
+
     birds = []
+    saved_birds = []
 
-    for _ in range(population_size):
-        target_neural_network = NeuralNetwork()
-        target_neural_network.model.set_weights(bird.neural_network.model.get_weights())
-        mutate(target_neural_network.model)
-        birds.append(Bird(x_pos=randint(10,50),model=bird.neural_network.model))
-
-    print(len(birds))
-    return birds
+    return new_birds
 
 pygame.init()
 window = pygame.display.set_mode((500,500))
 pygame.display.set_caption("Flappy Bird AI")
 
 GAP = 200
-birds = create_bird_population(10)
+POP_SIZE = 100
+birds = create_bird_population(POP_SIZE)
 saved_birds = []
 upper_block = Block(0,0,500,50)
 lower_block = Block(0,450,500,50)
@@ -77,7 +79,7 @@ while run:
         pygame.time.delay(500)
         start = True
     else:
-        pygame.time.delay(100)
+        pygame.time.delay(50)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -131,8 +133,8 @@ while run:
     pygame.draw.rect(window,(255,255,255),(upper_block.x_pos,upper_block.y_pos,upper_block.width,upper_block.height))
     pygame.draw.rect(window,(255,255,255),(lower_block.x_pos,lower_block.y_pos,lower_block.width,lower_block.height))
 
-    if len(birds) <= 10:
-        pygame.display.update()
+    #if len(birds) <= 10:
+    pygame.display.update()
 
     # Velocity of pipes
     upper_pipe.x_pos -= 8
@@ -151,8 +153,9 @@ while run:
         print('Next generation!')
         # respawn birds
         # temporary
-        saved_birds = []
-        birds = next_generation(10)
+        #POP_SIZE = int(POP_SIZE/2)
+        birds = next_generation(POP_SIZE)
+        print(len(birds))
 
         # Reset pipe positions
         upper_pipe.x_pos = 500 + 25

@@ -21,7 +21,7 @@ class NeuralNetwork():
 class Bird():
    
     def __init__(self,x_pos=200,y_pos=250,y_vel=0,width=10,height=10,model=None):
-        self.x_pos = randint(100,200)
+        self.x_pos = x_pos
         self.y_pos = y_pos
         self.y_vel = y_vel
         self.width = width
