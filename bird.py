@@ -27,6 +27,7 @@ class Bird():
         self.width = width
         self.height = height
         self.score = 0
+        self.training_score = 0
         self.fitness = 0
         self.neural_network = NeuralNetwork()
         if model is not None:

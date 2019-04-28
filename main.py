@@ -59,27 +59,30 @@ def next_generation(population_size):
     return new_birds
 
 pygame.init()
+pygame.font.init()
+myfont = pygame.font.SysFont('Comic Sans MS', 20)
 window = pygame.display.set_mode((500,500))
 pygame.display.set_caption("Flappy Bird AI")
 
 GAP = 200
-POP_SIZE = 100
+POP_SIZE = 50
 birds = create_bird_population(POP_SIZE)
 saved_birds = []
 upper_block = Block(0,0,500,50)
 lower_block = Block(0,450,500,50)
 upper_pipe = Block(475,50,25,randrange(0,400 - GAP))
 lower_pipe = Block(475,upper_pipe.y_pos + upper_pipe.height + GAP,25,400 - upper_pipe.height - GAP)
+score = 0
 
 start = False
 run = True
 while run:
 
     if start == False:
-        pygame.time.delay(500)
+        pygame.time.delay(100)
         start = True
     else:
-        pygame.time.delay(50)
+        pygame.time.delay(200)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -91,6 +94,10 @@ while run:
                 pass
 
     pygame.draw.rect(window,(0,0,0),(0,0,500,500))
+
+    textsurface = myfont.render(f'Score: {score}', False, (255, 255, 255))
+    window.blit(textsurface,(250,250))
+    score += 1    
 
     for bird in birds:
 
@@ -154,6 +161,7 @@ while run:
         # respawn birds
         # temporary
         #POP_SIZE = int(POP_SIZE/2)
+        score = 0
         birds = next_generation(POP_SIZE)
         print(len(birds))
 
