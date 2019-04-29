@@ -41,7 +41,7 @@ class Bird():
             self.flap()
 
     def flap(self):
-        self.y_vel -= 1
+        self.y_vel -= 1 # 1
 
     def fly(self):
         self.y_vel += 0.5
