@@ -3,7 +3,7 @@ from random import randint
 
 class NeuralNetwork():
 
-    def __init__(self):
+    def __init__(self,input_size,output_size):
         self.model = keras.models.Sequential()
         # We will choose to have 6 features:
         # - distance from ceiling
@@ -12,10 +12,10 @@ class NeuralNetwork():
         # - x-distance from pipe
         # - y-distance from upper pipe
         # - y-distance from lower pipe
-        self.model.add(keras.layers.Dense(128,input_dim=(6),activation='relu'))
+        self.model.add(keras.layers.Dense(128,input_dim=(input_size),activation='relu'))
         self.model.add(keras.layers.Dense(64,activation='relu'))
         # We will have one output
-        self.model.add(keras.layers.Dense(1,activation='relu'))
+        self.model.add(keras.layers.Dense(output_size,activation='relu'))
         self.model.compile(loss='mean_squared_error',optimizer='Adam')
 
 class Bird():
@@ -29,7 +29,7 @@ class Bird():
         self.score = 0
         self.training_score = 0
         self.fitness = 0
-        self.neural_network = NeuralNetwork()
+        self.neural_network = NeuralNetwork(6,1)
         if model is not None:
             self.neural_network.model = model
 
