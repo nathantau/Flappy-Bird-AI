@@ -23,6 +23,8 @@ def play_training_games(num_games):
         # Resetting env
         GAP = 200
         ACCEPTED_SCORE = 3
+        FLAP_INCREMENT_VALUE = 10
+        flap_increment_current_value = 0
         upper_block = Block(0,0,500,50)
         lower_block = Block(0,450,500,50)
         upper_pipe = Block(475,50,25,randrange(0,400 - GAP))
@@ -41,7 +43,7 @@ def play_training_games(num_games):
 
         while not done:
 
-            pygame.time.delay(5)
+            pygame.time.delay(50)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -72,14 +74,20 @@ def play_training_games(num_games):
             obs = np.array([upper_dist,lower_dist,bird_y_vel,x_pipe_dist,y_upper_pipe_dist,y_lower_pipe_dist]) #.reshape((-1,6))
             #print(obs)
 
-            # Randomly generate flying behaviour
-            action = randint(0,1)
-            #print(f'action: {action}')
-            if action is 1:
-                bird.flap()
+            action = 0
+
+            if flap_increment_current_value == FLAP_INCREMENT_VALUE:
+
+                action = randint(0,1)
+                if action is 1:
+                    bird.flap()
+                action = np.array([action])
+                flap_increment_current_value = 0                
+            else:
+                flap_increment_current_value += 1
                     
             bird.fly()
-            action = np.array([action])
+
 
             reward = 0
 
@@ -131,7 +139,9 @@ def play_training_games(num_games):
 
                 score_incremented = False
 
-            memory.append([obs, action])
+
+            if flap_increment_current_value != 0:
+                memory.append([obs, action])
 
         # We want to save the data in this case...
         if bird.score >= ACCEPTED_SCORE:
@@ -375,6 +385,6 @@ def play_game(bird,num_games):
     pygame.quit()
 
 # ACTUAL FLOW
-training_data = play_training_games(500)
+training_data = play_training_games(10)
 bird = train_bird(training_data)
 play_game(bird,100)
