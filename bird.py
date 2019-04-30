@@ -12,11 +12,11 @@ class NeuralNetwork():
         # - x-distance from pipe
         # - y-distance from upper pipe
         # - y-distance from lower pipe
-        self.model.add(keras.layers.Dense(128,input_dim=(input_size),activation='relu'))
-        self.model.add(keras.layers.Dense(64,activation='relu'))
+        self.model.add(keras.layers.Dense(16,input_dim=(input_size),activation='sigmoid'))
+        self.model.add(keras.layers.Dense(16,activation='sigmoid'))
         # We will have one output
-        self.model.add(keras.layers.Dense(output_size,activation='relu'))
-        self.model.compile(loss='mean_squared_error',optimizer='Adam')
+        self.model.add(keras.layers.Dense(output_size,activation='tanh'))
+        self.model.compile(loss='mse',optimizer='Adam',metrics=['acc'])
 
 class Bird():
    
